@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cold Call Role Play — HPD Training Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1B2A41; --navy-light:#2B4160; --paper:#FAF8F3; --card:#F0ECE1;
+    --green:#2F6F4E; --green-dark:#1F4C35; --amber:#B5651D; --red:#A6402F;
+    --teal:#1D7A72; --teal-bg:#E4F1EF;
+    --slate:#5B6472; --line:#D8D2C2; --ink:#232620;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',system-ui,sans-serif;line-height:1.6;}
+  .wrap{max-width:920px;margin:0 auto;padding:0 24px 80px;}
+
+  header.statement-head{background:var(--navy);color:#EDE9DD;padding:36px 0 28px;}
+  header.statement-head .wrap{padding-top:0;padding-bottom:0;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#9FB3CE;margin:0 0 10px;}
+  h1{font-family:'Lora',serif;font-weight:600;font-size:28px;margin:0 0 10px;color:#FAF8F3;}
+  header p.sub{margin:0;color:#C7CFDB;font-size:14.5px;max-width:620px;}
+
+  section{padding:26px 0;}
+  h2{font-family:'Lora',serif;font-size:18px;font-weight:600;color:var(--navy);margin:0 0 4px;}
+  .section-sub{color:var(--slate);font-size:13px;margin:0 0 14px;}
+
+  .api-bar{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px 18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .api-bar input[type=password]{flex:1;min-width:220px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;font-family:'IBM Plex Mono',monospace;font-size:13px;background:var(--paper);}
+  .api-bar button{padding:10px 18px;border:none;border-radius:6px;background:var(--navy);color:#FAF8F3;font-family:'Inter';font-weight:600;font-size:13.5px;cursor:pointer;}
+  .api-bar button:hover{background:var(--navy-light);}
+  .api-status{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--slate);width:100%;margin-top:4px;}
+  .api-status.ok{color:var(--green-dark);} .api-status.err{color:#B5651D;}
+
+  .picker-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .picker-group label{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--slate);margin-bottom:8px;}
+  .chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{padding:9px 14px;border:1px solid var(--line);border-radius:20px;background:var(--paper);cursor:pointer;font-family:'Inter';font-size:13px;font-weight:500;color:var(--navy);}
+  .chip.active{background:var(--navy);color:#FAF8F3;border-color:var(--navy);}
+
+  .start-row{margin-top:18px;}
+  .start-row button{padding:12px 22px;border:none;border-radius:6px;background:var(--green);color:#fff;font-weight:600;font-size:14px;cursor:pointer;}
+  .start-row button:hover{background:var(--green-dark);}
+  .current-setup{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--slate);margin-top:8px;}
+
+  /* Progress meter */
+  .progress-panel{background:var(--card);border-radius:8px;padding:16px 18px;margin-top:22px;}
+  .progress-track{display:flex;align-items:center;gap:6px;}
+  .progress-seg{flex:1;height:8px;border-radius:4px;background:var(--line);}
+  .progress-seg.filled{background:var(--green);}
+  .progress-labels{display:flex;justify-content:space-between;margin-top:8px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--slate);}
+  .progress-labels span.reached{color:var(--green-dark);font-weight:600;}
+  .stat-row{display:flex;gap:18px;margin-top:14px;flex-wrap:wrap;}
+  .stat{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--slate);}
+  .stat b{color:var(--navy);font-size:14px;display:block;font-family:'Inter';}
+  .stall-warning{
+    margin-top:12px;background:#F7E6DE;border-left:3px solid var(--red);color:#7A2E1E;
+    padding:10px 14px;border-radius:0 6px 6px 0;font-size:13px;display:none;
+  }
+  .win-banner{
+    margin-top:12px;background:#E4F1EF;border-left:3px solid var(--teal);color:var(--teal);
+    padding:12px 14px;border-radius:0 6px 6px 0;font-size:13.5px;font-weight:600;display:none;
+  }
+
+  .rp-wrap{margin-top:18px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--paper);}
+  #chatArea{max-height:420px;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px;}
+  .msg{max-width:85%;padding:10px 14px;border-radius:10px;font-size:14px;line-height:1.55;}
+  .msg.owner{background:var(--card);color:var(--ink);align-self:flex-start;border-bottom-left-radius:3px;}
+  .msg.rep{background:var(--navy);color:#EDE9DD;align-self:flex-end;border-bottom-right-radius:3px;}
+  .msg.system{background:transparent;color:var(--slate);font-family:'IBM Plex Mono',monospace;font-size:12px;text-align:center;align-self:center;max-width:100%;}
+  .msg.typing{background:var(--card);color:var(--slate);align-self:flex-start;font-style:italic;font-size:13px;}
+  .score-tag{
+    display:inline-block;margin-top:6px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;
+    padding:2px 8px;border-radius:10px;background:var(--navy);color:#EDE9DD;
+  }
+
+  .composer{display:flex;gap:8px;padding:14px;border-top:1px solid var(--line);background:var(--card);}
+  .composer textarea{flex:1;resize:none;border:1px solid var(--line);border-radius:6px;padding:10px 12px;font-family:'Inter';font-size:14px;min-height:44px;}
+  .composer button{padding:0 20px;border:none;border-radius:6px;background:var(--green);color:#fff;font-weight:600;cursor:pointer;font-size:13.5px;}
+  .composer button:disabled{background:#A9B3AC;cursor:not-allowed;}
+  .composer button:hover:not(:disabled){background:var(--green-dark);}
+
+  .coach-panel{margin-top:18px;border:2px solid var(--teal);border-radius:8px;background:var(--teal-bg);padding:18px 20px;}
+  .coach-panel h3{margin:0 0 10px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);}
+  #coachContent{font-size:14px;color:var(--ink);line-height:1.6;white-space:pre-wrap;}
+  #coachContent:empty::before{content:"Coach feedback will appear here after your first exchange.";color:var(--slate);font-style:italic;}
+
+  .reset-row{margin-top:14px;text-align:right;}
+  .reset-row button{background:none;border:1px solid var(--line);color:var(--slate);padding:8px 14px;border-radius:6px;font-size:12.5px;cursor:pointer;font-family:'Inter';}
+  .reset-row button:hover{border-color:var(--navy);color:var(--navy);}
+
+  /* Reference accordion */
+  .ref-toggle{
+    width:100%;text-align:left;background:var(--navy);color:#FAF8F3;border:none;border-radius:8px;
+    padding:14px 18px;font-family:'Inter';font-weight:600;font-size:14.5px;cursor:pointer;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .ref-toggle:hover{background:var(--navy-light);}
+  .ref-body{display:none;margin-top:14px;}
+  .ref-body.open{display:block;}
+  .obj-block{margin-bottom:28px;}
+  .obj-head{display:flex;align-items:baseline;gap:10px;margin-bottom:12px;border-bottom:2px solid var(--navy);padding-bottom:8px;}
+  .obj-tag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--slate);}
+  .obj-quote{font-family:'Lora',serif;font-weight:600;font-size:16.5px;color:var(--navy);}
+  .grid4{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+  .ind-card{background:var(--card);border-radius:6px;padding:14px 16px;}
+  .ind-card h4{margin:0 0 6px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--green-dark);}
+  .ind-card p{margin:0;font-size:13.3px;color:var(--ink);}
+  .late-stage{background:var(--teal-bg);border-left:3px solid var(--teal);padding:14px 18px;border-radius:0 6px 6px 0;margin-bottom:12px;}
+  .late-stage h4{margin:0 0 5px;font-size:14px;color:var(--teal);font-weight:600;}
+  .late-stage p{margin:0;font-size:13.2px;color:var(--ink);}
+
+  footer{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--slate);text-align:center;padding:30px 0 0;border-top:1px solid var(--line);margin-top:20px;}
+  @media (max-width:640px){h1{font-size:22px;} .picker-row,.grid4{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<header class="statement-head">
+  <div class="wrap">
+    <p class="eyebrow">HPD BDR Training Hub &nbsp;/&nbsp; AI Role Play</p>
+    <h1>Cold Call Role Play</h1>
+    <p class="sub">Every scenario starts at the moment the phone picks up. Pick an industry and an objection, run the call, and get graded on whether you actually moved it forward — not just whether the merchant was nice to you.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="api-bar">
+      <input type="password" id="apiKeyInput" placeholder="Paste your Anthropic API key (sk-ant-...)">
+      <button onclick="saveKey()">Save Key</button>
+      <div class="api-status" id="apiStatus">Enter your API key to activate the AI role play. Your key is stored only in your browser.</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Set up the call</h2>
+    <p class="section-sub">Choose the business and the objection you want to practice against.</p>
+    <div class="picker-row">
+      <div class="picker-group">
+        <label>Industry</label>
+        <div class="chip-row" id="industryChips"></div>
+      </div>
+      <div class="picker-group">
+        <label>Objection</label>
+        <div class="chip-row" id="objectionChips"></div>
+      </div>
+    </div>
+    <div class="start-row">
+      <button onclick="startCall()">Start Call</button>
+      <div class="current-setup" id="currentSetup"></div>
+    </div>
+  </section>
+
+  <section style="padding-top:0;">
+    <div class="progress-panel">
+      <div class="progress-track" id="progressTrack"></div>
+      <div class="progress-labels" id="progressLabels"></div>
+      <div class="stat-row">
+        <div class="stat"><b id="statExchanges">0</b>Exchanges</div>
+        <div class="stat"><b id="statAvgScore">—</b>Avg. Score</div>
+        <div class="stat"><b id="statLastScore">—</b>Last Move</div>
+        <div class="stat"><b id="statStage">Opening</b>Current Stage</div>
+      </div>
+      <div class="stall-warning" id="stallWarning">⚠ Not moving the needle — the objection hasn't been resolved in the last few exchanges. Try a sharper, more specific analogy instead of repeating the ask.</div>
+      <div class="win-banner" id="winBanner">✓ Call won — statement commitment secured with a specific next action and a time.</div>
+    </div>
+
+    <div class="rp-wrap">
+      <div id="chatArea"></div>
+      <div class="composer">
+        <textarea id="repInput" placeholder="Type what you'd say as the rep..." onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); sendMessage();}"></textarea>
+        <button id="sendBtn" onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+
+    <div class="coach-panel">
+      <h3>Coach Feedback</h3>
+      <div id="coachContent"></div>
+    </div>
+
+    <div class="reset-row">
+      <button onclick="startCall()">Restart this call</button>
+    </div>
+  </section>
+
+  <section>
+    <button class="ref-toggle" onclick="toggleRef()">
+      <span>Objection Analogy Reference — all 9 objections × 4 industries</span>
+      <span id="refToggleIcon">+</span>
+    </button>
+    <div class="ref-body" id="refBody">
+
+      <div class="obj-block" style="margin-top:20px;">
+        <div class="obj-head"><span class="obj-tag">Early — Objection</span><span class="obj-quote">"I'm busy."</span></div>
+        <div class="grid4">
+          <div class="ind-card"><h4>Auto Repair</h4><p>When someone's rushing in and says they don't have time for a full inspection, we always say — the quick check now beats the tow truck later. Two minutes now, real savings starting next month.</p></div>
+          <div class="ind-card"><h4>Restaurant</h4><p>It's like a to-go order — you don't need the full sit-down experience, just handed to you fast. One document and I'm out of your hair.</p></div>
+          <div class="ind-card"><h4>Service (Salon/Spa)</h4><p>Like a client asking for a quick trim between appointments. This takes less time than that — not an hour, just a two-minute favor.</p></div>
+          <div class="ind-card"><h4>Retail</h4><p>Like a customer doing a quick return at the counter, in and out. Thirty seconds to grab a statement.</p></div>
+        </div>
+      </div>
+
+      <div class="obj-block">
+        <div class="obj-head"><span class="obj-tag">Early — Objection</span><span class="obj-quote">"Not interested."</span></div>
+        <div class="grid4">
+          <div class="ind-card"><h4>Auto Repair</h4><p>Think of it like a free second opinion before a big repair — not committing to the shop, just finding out if the first diagnosis was right.</p></div>
+          <div class="ind-card"><h4>Restaurant</h4><p>Think of it like a blind taste test. Doesn't cost you anything to find out if there's a better dish out there.</p></div>
+          <div class="ind-card"><h4>Service (Salon/Spa)</h4><p>It's like a free consultation before a big treatment. Costs nothing to know your options.</p></div>
+          <div class="ind-card"><h4>Retail</h4><p>It's like comparison shopping before a big purchase — doesn't commit you to anything, just gives you the facts.</p></div>
+        </div>
+      </div>
+
+      <div class="obj-block">
+        <div class="obj-head"><span class="obj-tag">Early — Objection</span><span class="obj-quote">"I'm happy with my current processor."</span></div>
+        <div class="grid4">
+          <div class="ind-card"><h4>Auto Repair</h4><p>Even a car running fine still gets an inspection every year, just to make sure nothing's hiding under the hood.</p></div>
+          <div class="ind-card"><h4>Restaurant</h4><p>Even a five-star kitchen still gets health inspections — not because something's wrong, just to confirm everything's tight.</p></div>
+          <div class="ind-card"><h4>Service (Salon/Spa)</h4><p>Even a great stylist still does a color consultation now and then, just to confirm the formula's still the best fit.</p></div>
+          <div class="ind-card"><h4>Retail</h4><p>Even a store doing great numbers still audits its vendor contracts once a year, just to be sure they're not overpaying.</p></div>
+        </div>
+      </div>
+
+      <div class="obj-block">
+        <div class="obj-head"><span class="obj-tag">Early — Objection</span><span class="obj-quote">"A friend / family member does my processing."</span></div>
+        <div class="grid4">
+          <div class="ind-card"><h4>Auto Repair</h4><p>It's like getting a second mechanic to check the brakes — doesn't mean you don't trust your guy, just confirms he's got you dialed in right.</p></div>
+          <div class="ind-card"><h4>Restaurant</h4><p>It's just a gut-check — like having a friend food critic taste-test the menu. If everything's great, you'll know for sure instead of just hoping.</p></div>
+          <div class="ind-card"><h4>Service (Salon/Spa)</h4><p>Like getting a second opinion on a treatment plan from another provider — doesn't mean you leave your guy, just confirms he's taking care of you.</p></div>
+          <div class="ind-card"><h4>Retail</h4><p>Like getting a second quote on insurance even when you like your agent. Worst case, you find out you're already getting the best deal.</p></div>
+        </div>
+      </div>
+
+      <div class="obj-block">
+        <div class="obj-head"><span class="obj-tag">Early — Objection</span><span class="obj-quote">"I get calls like this all the time."</span></div>
+        <div class="grid4">
+          <div class="ind-card"><h4>Auto Repair</h4><p>Difference is I'm not asking you to believe me — I'm asking to run the equivalent of a compression test instead of just taking my word the engine's fine.</p></div>
+          <div class="ind-card"><h4>Restaurant</h4><p>This isn't a pitch, it's a taste test with your actual numbers instead of my sales pitch.</p></div>
+          <div class="ind-card"><h4>Service (Salon/Spa)</h4><p>This is different — like a patch test before a full treatment. We're not guessing, we're checking your actual numbers.</p></div>
+          <div class="ind-card"><h4>Retail</h4><p>Most of those calls want you to trust them blind. I'm asking you to trust your own statement instead of my pitch.</p></div>
+        </div>
+      </div>
+
+      <div class="obj-block">
+        <div class="obj-head"><span class="obj-tag">Early — Objection</span><span class="obj-quote">"I already pay zero." (cash discount / zero-fee program)</span></div>
+        <div class="grid4">
+          <div class="ind-card"><h4>Auto Repair</h4><p>Not all zero-fee setups are tuned the same, kind of like two shops both saying "lifetime warranty" with very different fine print. Worth confirming yours is running clean.</p></div>
+          <div class="ind-card"><h4>Restaurant</h4><p>I've seen kitchens on "zero fee" programs still get hit with junk fees buried in the statement, like a $9.99 item that rings up $11. Let's just check the math.</p></div>
+          <div class="ind-card"><h4>Service (Salon/Spa)</h4><p>I've seen "zero fee" programs still nickel-and-dime with monthly minimums or PCI fees, like a package that says "unlimited" but caps at four visits.</p></div>
+          <div class="ind-card"><h4>Retail</h4><p>Zero-fee doesn't always mean truly zero — like "no interest" financing that still has a fee buried in it. Worth confirming yours is clean.</p></div>
+        </div>
+      </div>
+
+      <div class="obj-block">
+        <div class="obj-head"><span class="obj-tag">Late-call</span><span class="obj-quote">Trust and commitment objections</span></div>
+        <div class="late-stage"><h4>The Staller — agreeable, avoids commitment</h4><p>Wins by giving a specific, physical next action (portal login, a name to email, a text) and locking a time — not by trying harder to convince them.</p></div>
+        <div class="late-stage"><h4>The Guarded Owner — privacy-hesitant, been burned before</h4><p>Wins by normalizing the ask without getting defensive and clarifying only the fee page is needed, not banking details.</p></div>
+        <div class="late-stage"><h4>The Ghost — says yes, low intent to follow through</h4><p>Wins by refusing a vague promise and offering a backup path (portal, bookkeeper) before the call ends.</p></div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>HPD Sales Enablement &nbsp;·&nbsp; Cold Call Role Play &nbsp;·&nbsp; Powered by Claude</footer>
+</div>
+
+<script>
+  // ---------- API KEY ----------
+  let apiKey = '';
+  try { apiKey = localStorage.getItem('anthro_key') || ''; } catch(e) {}
+  if (apiKey) {
+    document.getElementById('apiKeyInput').value = apiKey;
+    setStatus('Key loaded from this browser. Ready to practice.', 'ok');
+  }
+  function saveKey() {
+    const val = document.getElementById('apiKeyInput').value.trim();
+    if (!val.startsWith('sk-ant-')) { setStatus('That doesn\'t look like a valid key — it should start with "sk-ant-"', 'err'); return; }
+    apiKey = val;
+    try { localStorage.setItem('anthro_key', val); } catch(e) {}
+    setStatus('Key saved! You can now start a call below.', 'ok');
+  }
+  function setStatus(msg, type) {
+    const el = document.getElementById('apiStatus');
+    el.textContent = msg;
+    el.className = 'api-status ' + (type || '');
+  }
+
+  function toggleRef() {
+    const body = document.getElementById('refBody');
+    const icon = document.getElementById('refToggleIcon');
+    body.classList.toggle('open');
+    icon.textContent = body.classList.contains('open') ? '−' : '+';
+  }
+
+  // ---------- DATA ----------
+  const industries = {
+    auto_repair:  { label:"Auto Repair",  business:"Mike's Auto Repair",     owner:"Mike",    greeting:"Mike's Auto Repair, this is Mike." },
+    restaurant:   { label:"Restaurant",   business:"Nonna's Kitchen",        owner:"Maria",   greeting:"Nonna's Kitchen, this is Maria." },
+    service:      { label:"Service (Salon/Spa)", business:"Jennifer's Salon & Spa", owner:"Jennifer", greeting:"Jennifer's Salon, this is Jennifer." },
+    retail:       { label:"Retail",       business:"Sandra's Boutique",      owner:"Sandra",  greeting:"Sandra's Boutique, this is Sandra." }
+  };
+
+  const objections = {
+    busy:            { label:"I'm busy",                    stage:"early", opening:"I'm kind of slammed right now, can you make this quick?" },
+    not_interested:  { label:"Not interested",               stage:"early", opening:"I appreciate the call but I'm really not interested." },
+    happy:           { label:"I'm happy with my processor",  stage:"early", opening:"I'm happy with who I've got, so I don't think I need this." },
+    friend:          { label:"A friend does my processing",  stage:"early", opening:"Honestly, a friend of mine handles my processing, so I'm all set." },
+    calls_all_time:  { label:"I get calls like this all the time", stage:"early", opening:"I get calls like this every single week, man." },
+    already_zero:    { label:"I already pay zero",           stage:"early", opening:"We're already on a program where we don't pay any processing fees." },
+    staller:         { label:"The Staller",                  stage:"late",  opening:"Yeah, that all sounds fine. Just call me back next week, I'll dig it up then." },
+    guarded_owner:   { label:"The Guarded Owner",             stage:"late",  opening:"I don't really feel comfortable sending you our banking information." },
+    ghost:           { label:"The Ghost",                     stage:"late",  opening:"Sure, email me and I'll send it whenever I get a chance." }
+  };
+
+  const analogies = {
+    auto_repair: {
+      busy: "the quick check now beats the tow truck later — two minutes now for real savings starting next month",
+      not_interested: "a free second opinion before a big repair — doesn't commit you to the shop, just confirms the first diagnosis",
+      happy: "even a car running fine still gets an annual inspection, just to make sure nothing's hiding under the hood",
+      friend: "getting a second mechanic to check the brakes doesn't mean you don't trust your guy, just confirms he's got you dialed in",
+      calls_all_time: "this is like a compression test instead of taking someone's word the engine's fine — checking real numbers, not a pitch",
+      already_zero: "two shops can both say 'lifetime warranty' with very different fine print — worth confirming the zero-fee program is actually clean"
+    },
+    restaurant: {
+      busy: "it's like a to-go order — the fast version, one document and I'm out of your hair",
+      not_interested: "a blind taste test costs nothing and might turn up a better dish",
+      happy: "even a five-star kitchen still gets health inspections, not because something's wrong but to confirm everything's tight",
+      friend: "like having a friend food critic taste-test the menu — if it's great, you'll know for sure instead of just hoping",
+      calls_all_time: "this is a taste test with actual numbers instead of a sales pitch",
+      already_zero: "a $9.99 item can still ring up $11 with fees buried in — worth checking the real math on a 'zero fee' program"
+    },
+    service: {
+      busy: "like a client asking for a quick trim between appointments — this takes less time than that",
+      not_interested: "a free consultation before a big treatment costs nothing to learn from",
+      happy: "even a great stylist still does a color consultation now and then, just to confirm the formula's still right",
+      friend: "a second opinion on a treatment plan doesn't mean leaving your provider, just confirms they're taking care of you",
+      calls_all_time: "this is a patch test before a full treatment — checking real numbers, not guessing",
+      already_zero: "a package that says 'unlimited' but caps at four visits — worth a two-minute check on the fine print"
+    },
+    retail: {
+      busy: "like a quick return at the counter — in and out, thirty seconds to grab a statement",
+      not_interested: "comparison shopping before a big purchase doesn't commit you to anything",
+      happy: "even a store doing great numbers still audits vendor contracts once a year, just to be sure they're not overpaying",
+      friend: "a second insurance quote even when you like your agent — worst case, you confirm you already have the best deal",
+      calls_all_time: "this is trusting your own statement instead of someone else's pitch",
+      already_zero: "'no interest' financing that still has a fee buried in it — worth confirming the zero-fee program is actually clean"
+    }
+  };
+
+  const lateStageBehavior = {
+    staller: "Stay agreeable but noncommittal unless the rep gives you a specific, physical next action (a portal login, a name to email, a text) AND locks a time. Vague asks get vague answers from you.",
+    guarded_owner: "Stay guarded about sharing financial information unless the rep normalizes the concern without getting defensive and clarifies only the fee/pricing page is needed, not banking details. If they push or get defensive, become more resistant.",
+    ghost: "Give vague agreement ('sure, sounds good') unless the rep refuses to accept that and offers a backup path (portal, bookkeeper) along with a specific time. If they lock both, reveal your bookkeeper actually handles this and offer to connect them."
+  };
+
+  const STAGE_LABELS = ["Opening", "Objection", "Handling", "Resolved", "Committed"];
+
+  let selectedIndustry = 'auto_repair';
+  let selectedObjection = 'busy';
+
+  function renderChips() {
+    const iWrap = document.getElementById('industryChips');
+    iWrap.innerHTML = '';
+    Object.keys(industries).forEach(key => {
+      const b = document.createElement('div');
+      b.className = 'chip' + (key === selectedIndustry ? ' active' : '');
+      b.textContent = industries[key].label;
+      b.onclick = () => { selectedIndustry = key; renderChips(); updateSetupLabel(); };
+      iWrap.appendChild(b);
+    });
+    const oWrap = document.getElementById('objectionChips');
+    oWrap.innerHTML = '';
+    Object.keys(objections).forEach(key => {
+      const b = document.createElement('div');
+      b.className = 'chip' + (key === selectedObjection ? ' active' : '');
+      b.textContent = objections[key].label;
+      b.onclick = () => { selectedObjection = key; renderChips(); updateSetupLabel(); };
+      oWrap.appendChild(b);
+    });
+  }
+  function updateSetupLabel() {
+    document.getElementById('currentSetup').textContent =
+      `Ready: ${industries[selectedIndustry].label} — "${objections[selectedObjection].label}"`;
+  }
+  renderChips();
+  updateSetupLabel();
+
+  // ---------- PROGRESS METER ----------
+  function renderProgressShell() {
+    const track = document.getElementById('progressTrack');
+    const labels = document.getElementById('progressLabels');
+    track.innerHTML = '';
+    labels.innerHTML = '';
+    STAGE_LABELS.forEach((lab, i) => {
+      const seg = document.createElement('div');
+      seg.className = 'progress-seg';
+      seg.id = 'seg' + i;
+      track.appendChild(seg);
+      const l = document.createElement('span');
+      l.textContent = lab;
+      l.id = 'lab' + i;
+      labels.appendChild(l);
+    });
+  }
+  function updateProgressUI(maxStage) {
+    for (let i = 0; i < STAGE_LABELS.length; i++) {
+      const seg = document.getElementById('seg' + i);
+      const lab = document.getElementById('lab' + i);
+      if (i <= maxStage) { seg.classList.add('filled'); lab.classList.add('reached'); }
+      else { seg.classList.remove('filled'); lab.classList.remove('reached'); }
+    }
+    document.getElementById('statStage').textContent = STAGE_LABELS[maxStage];
+  }
+
+  // ---------- PROMPT BUILDER ----------
+  function buildSystemPrompt(industryKey, objectionKey) {
+    const ind = industries[industryKey];
+    const obj = objections[objectionKey];
+    const isEarly = obj.stage === 'early';
+    const analogyHint = isEarly ? analogies[industryKey][objectionKey] : '';
+    const behavior = isEarly
+      ? `Once the rep starts their pitch, respond with this objection in your own words: "${obj.opening}" Hold this position unless the rep reframes it with a genuine, industry-relevant analogy — something a ${ind.label.toLowerCase()} owner would actually relate to. For your own reference only (never recite this verbatim unless the rep is completely stuck after two tries): a strong analogy here would be something like ${analogyHint}. If the rep's analogy lands, soften and let them move the call forward toward asking for your statement.`
+      : `The call has already gotten past the opener. Once the rep asks you to send your processing statement, respond with: "${obj.opening}" ${lateStageBehavior[objectionKey]}`;
+
+    return `You are ${ind.owner}, owner of ${ind.business}, a ${ind.label.toLowerCase()} business. You just answered the phone. Start the scene by saying only your greeting: "${ind.greeting}" — nothing else. Wait for the rep to introduce themselves and start their pitch before reacting further.
+
+${behavior}
+
+Only agree to send your processing statement once the rep has handled the objection well and gives you a specific, physical next action with a time commitment (not just "can you send it over").
+
+IMPORTANT: Only ever speak as ${ind.owner}. Never write dialogue or words for the rep. Keep replies to 2-4 sentences, natural spoken language, not a monologue.
+
+After each rep message, you must grade that exchange. Reply in exactly this structure, each on its own line, and nothing after the last line:
+[owner's spoken reply, 2-4 sentences]
+STAGE: [a single number 0-4, where 0=opening/no objection surfaced yet, 1=objection has been raised and is still standing, 2=rep is actively working the objection but hasn't resolved it, 3=objection is resolved and the rep can now ask for the statement, 4=rep has secured a specific next action AND a time commitment for the statement]
+SCORE: [1-10 rating of just this exchange — did the rep's message move the call forward toward getting the statement, or did it stall/regress]
+COACH: [2-3 sentences of specific feedback — call out if the rep is just absorbing a polite brush-off instead of actually progressing the call]`;
+  }
+
+  // ---------- CHAT ----------
+  let chatHistory = [];
+  let isLoading = false;
+  let maxStageReached = 0;
+  let currentStage = 0;
+  let stallCount = 0;
+  let scores = [];
+
+  function addMsg(role, text, scoreTag) {
+    const div = document.createElement('div');
+    div.className = 'msg ' + role;
+    div.textContent = text;
+    if (scoreTag !== undefined && scoreTag !== null) {
+      const tag = document.createElement('div');
+      tag.className = 'score-tag';
+      tag.textContent = scoreTag;
+      div.appendChild(tag);
+    }
+    document.getElementById('chatArea').appendChild(div);
+    document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
+    return div;
+  }
+  function showTyping() { const d = addMsg('typing', 'Merchant is responding...'); d.id = 'typingIndicator'; }
+  function hideTyping() { const el = document.getElementById('typingIndicator'); if (el) el.remove(); }
+
+  function parseResponse(text) {
+    const stageMatch = text.match(/STAGE:\s*(\d)/i);
+    const scoreMatch = text.match(/SCORE:\s*(\d{1,2})/i);
+    const coachMatch = text.match(/COACH:\s*([\s\S]*)/i);
+    let reply = text;
+    const cutIdx = text.search(/STAGE:/i);
+    if (cutIdx !== -1) reply = text.slice(0, cutIdx).trim();
+    return {
+      reply,
+      stage: stageMatch ? parseInt(stageMatch[1], 10) : null,
+      score: scoreMatch ? parseInt(scoreMatch[1], 10) : null,
+      coach: coachMatch ? coachMatch[1].trim() : ''
+    };
+  }
+
+  function updateStats() {
+    document.getElementById('statExchanges').textContent = scores.length;
+    const avg = scores.length ? (scores.reduce((a,b)=>a+b,0) / scores.length).toFixed(1) : '—';
+    document.getElementById('statAvgScore').textContent = avg;
+    const last = scores.length ? scores[scores.length - 1] : null;
+    document.getElementById('statLastScore').textContent = last !== null ? (last + '/10') : '—';
+
+    const stallEl = document.getElementById('stallWarning');
+    stallEl.style.display = (stallCount >= 3 && maxStageReached < 4) ? 'block' : 'none';
+
+    const winEl = document.getElementById('winBanner');
+    winEl.style.display = (maxStageReached >= 4) ? 'block' : 'none';
+  }
+
+  let currentSystemPrompt = '';
+
+  function startCall() {
+    if (!apiKey) { setStatus('Enter and save your API key first.', 'err'); return; }
+    currentSystemPrompt = buildSystemPrompt(selectedIndustry, selectedObjection);
+    chatHistory = [];
+    maxStageReached = 0; currentStage = 0; stallCount = 0; scores = [];
+    renderProgressShell();
+    updateProgressUI(0);
+    updateStats();
+    document.getElementById('chatArea').innerHTML = '';
+    document.getElementById('coachContent').textContent = '';
+    addMsg('system', `Call started — ${industries[selectedIndustry].label}, "${objections[selectedObjection].label}". Phone is ringing...`);
+    runTurn(null);
+  }
+
+  async function runTurn(userMessage) {
+    if (!apiKey) { setStatus('Enter and save your API key first.', 'err'); return; }
+    isLoading = true;
+    document.getElementById('sendBtn').disabled = true;
+    showTyping();
+    try {
+      const resp = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true"
+        },
+        body: JSON.stringify({
+          model: "claude-haiku-4-5-20251001",
+          max_tokens: 500,
+          system: currentSystemPrompt,
+          messages: chatHistory.concat(userMessage ? [{ role: "user", content: userMessage }] : [{ role: "user", content: "Begin the scene." }])
+        })
+      });
+      const data = await resp.json();
+      hideTyping();
+      if (data.error) { setStatus('API error: ' + data.error.message, 'err'); return; }
+      const text = data.content.map(b => b.text || '').join('');
+      const parsed = parseResponse(text);
+
+      // Only score/track after the rep has actually spoken (skip the opening greeting turn)
+      if (userMessage !== null) {
+        if (parsed.stage !== null) {
+          currentStage = parsed.stage;
+          if (currentStage > maxStageReached) { maxStageReached = currentStage; stallCount = 0; }
+          else { stallCount++; }
+          updateProgressUI(maxStageReached);
+        }
+        if (parsed.score !== null) scores.push(parsed.score);
+        updateStats();
+      }
+
+      addMsg('owner', parsed.reply, userMessage !== null && parsed.score !== null ? `Score: ${parsed.score}/10` : null);
+      chatHistory.push({ role: 'user', content: userMessage || 'Begin the scene.' });
+      chatHistory.push({ role: 'assistant', content: text });
+      if (parsed.coach) document.getElementById('coachContent').textContent = parsed.coach;
+    } catch (e) {
+      hideTyping();
+      setStatus('Request failed: ' + e.message, 'err');
+    } finally {
+      isLoading = false;
+      document.getElementById('sendBtn').disabled = false;
+    }
+  }
+
+  async function sendMessage() {
+    if (isLoading) return;
+    const input = document.getElementById('repInput');
+    const val = input.value.trim();
+    if (!val) return;
+    addMsg('rep', val);
+    input.value = '';
+    await runTurn(val);
+  }
+
+  renderProgressShell();
+  updateProgressUI(0);
+  if (apiKey) { startCall(); }
+</script>
+
+</body>
+</html>
