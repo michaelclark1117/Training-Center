@@ -497,13 +497,17 @@ Rules:
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
+        model: 'claude-sonnet-5',
         max_tokens: 1000,
         system: buildSystemPrompt(),
         messages: state.history
       })
     });
     const data = await resp.json();
+    if (!resp.ok){
+      const msg = (data && data.error && data.error.message) ? data.error.message : `HTTP ${resp.status}`;
+      throw new Error(msg);
+    }
     const textBlock = (data.content || []).find(b => b.type === 'text');
     let raw = textBlock ? textBlock.text : '{}';
     raw = raw.replace(/```json|```/g, '').trim();
@@ -545,7 +549,7 @@ Rules:
       }
     } catch(err){
       removeThinking();
-      addBubble('merchant', "(connection issue — try that line again)", true);
+      addBubble('merchant', `(connection issue — ${err.message || 'try that line again'})`, true);
     }
 
     el('sendBtn').disabled = false;
@@ -630,12 +634,16 @@ ${transcriptText}`;
           'anthropic-dangerous-direct-browser-access': 'true'
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
+          model: 'claude-sonnet-5',
           max_tokens: 1000,
           messages: [{ role: 'user', content: coachSystem }]
         })
       });
       const data = await resp.json();
+      if (!resp.ok){
+        const msg = (data && data.error && data.error.message) ? data.error.message : `HTTP ${resp.status}`;
+        throw new Error(msg);
+      }
       const textBlock = (data.content || []).find(b => b.type === 'text');
       let raw = textBlock ? textBlock.text : '{}';
       raw = raw.replace(/```json|```/g, '').trim();
@@ -643,7 +651,7 @@ ${transcriptText}`;
       renderCoach(parsed);
     } catch(e){
       el('coachPanel').innerHTML = `<div class="panel-title" style="margin-bottom:10px;">Coach notes</div>
-        <div class="coach-loading" style="font-style:italic;">Couldn't load coaching feedback for this call &mdash; try Review transcript to self-review, or call again.</div>`;
+        <div class="coach-loading" style="font-style:italic;">Couldn't load coaching feedback (${e.message || 'unknown error'}) — try Review transcript to self-review, or call again.</div>`;
     }
   }
 
