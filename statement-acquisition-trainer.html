@@ -66,6 +66,25 @@
 #hpd-trainer .start-btn:disabled { opacity: .4; cursor: not-allowed; }
 #hpd-trainer .roadmap-note { font-size: 11.5px; color: var(--ink-muted); max-width: 480px; border-top: 1px solid var(--navy-700); padding-top: 14px; margin-top: 4px; }
 
+/* ---------- api key bar ---------- */
+#hpd-trainer .api-bar {
+  display: flex; gap: 8px; align-items: center; max-width: 480px; width: 100%;
+  background: var(--navy-800); border: 1px solid var(--navy-700); border-radius: 8px; padding: 10px 12px; flex-wrap: wrap;
+}
+#hpd-trainer .api-bar input {
+  flex: 1; min-width: 200px; background: var(--navy-900); border: 1px solid var(--navy-700); border-radius: 6px; color: var(--paper);
+  padding: 9px 12px; font-size: 12.5px; font-family: 'IBM Plex Mono', monospace;
+}
+#hpd-trainer .api-bar input:focus { outline: none; border-color: var(--gold-500); }
+#hpd-trainer .api-bar button {
+  background: var(--navy-600); border: none; border-radius: 6px; color: var(--paper); padding: 9px 16px;
+  font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 0.06em; font-size: 11.5px; font-weight: 600; cursor: pointer;
+}
+#hpd-trainer .api-bar button:hover { background: var(--gold-500); color: var(--navy-950); }
+#hpd-trainer .api-status { flex-basis: 100%; font-size: 11px; color: var(--ink-muted); }
+#hpd-trainer .api-status.ok { color: var(--success); }
+#hpd-trainer .api-status.err { color: var(--danger); }
+
 /* ---------- coach toggle ---------- */
 #hpd-trainer .coach-toggle-row {
   display: flex; align-items: center; gap: 10px; max-width: 480px; width: 100%;
@@ -208,6 +227,11 @@
       <h1>Get the statement.</h1>
     </div>
     <p class="lede">Pick a business type and cold-call an AI merchant. There are exactly three ways to close this call the right way &mdash; the same three the write-up process requires. Everything else is just you talking.</p>
+    <div class="api-bar">
+      <input type="password" id="apiKeyInput" placeholder="Paste your Anthropic API key (sk-ant-...)" />
+      <button id="saveKeyBtn">Save key</button>
+      <div class="api-status" id="apiStatus">Enter your API key to activate the AI prospect. Your key is stored only in this browser — it's never saved to GitHub or sent anywhere but Anthropic.</div>
+    </div>
     <div class="vertical-grid" id="verticalGrid"></div>
     <label class="coach-toggle-row" for="coachToggle">
       <span class="switch">
@@ -309,6 +333,34 @@
   let state = null;
   let timerInterval = null;
 
+  // ---------- API KEY ----------
+  let apiKey = '';
+  try { apiKey = localStorage.getItem('hpd_trainer_key') || ''; } catch(e) {}
+  if (apiKey){
+    el('apiKeyInput').value = apiKey;
+    setApiStatus('Key loaded from this browser. Ready to call.', 'ok');
+  }
+  function saveKey(){
+    const val = el('apiKeyInput').value.trim();
+    if (!val.startsWith('sk-ant-')){
+      setApiStatus('That doesn\'t look like a valid key — it should start with "sk-ant-"', 'err');
+      return;
+    }
+    apiKey = val;
+    try { localStorage.setItem('hpd_trainer_key', val); } catch(e) {}
+    setApiStatus('Key saved to this browser. Pick a vertical and start the call.', 'ok');
+    updateStartBtn();
+  }
+  function setApiStatus(msg, type){
+    const s = el('apiStatus');
+    s.textContent = msg;
+    s.className = 'api-status ' + (type || '');
+  }
+  function updateStartBtn(){
+    const hasVertical = state && state.selectedVertical;
+    el('startBtn').disabled = !(apiKey && hasVertical);
+  }
+
   function buildStart(){
     const grid = el('verticalGrid');
     VERTICALS.forEach(v => {
@@ -320,7 +372,7 @@
         card.classList.add('selected');
         state = state || {};
         state.selectedVertical = v.id;
-        el('startBtn').disabled = false;
+        updateStartBtn();
       };
       card.dataset.vid = v.id;
       grid.appendChild(card);
@@ -434,10 +486,16 @@ Rules:
   }
 
   async function callModel(userText){
+    if (!apiKey) { setApiStatus('Enter and save your API key first.', 'err'); throw new Error('no key'); }
     state.history.push({ role: 'user', content: userText });
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 1000,
@@ -562,9 +620,15 @@ TRANSCRIPT:
 ${transcriptText}`;
 
     try {
+      if (!apiKey) throw new Error('no key');
       const resp = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
         body: JSON.stringify({
           model: 'claude-sonnet-4-6',
           max_tokens: 1000,
@@ -603,6 +667,7 @@ ${transcriptText}`;
     `;
   }
 
+  el('saveKeyBtn').addEventListener('click', saveKey);
   el('startBtn').addEventListener('click', startCall);
   el('sendBtn').addEventListener('click', sendLine);
   el('lineInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendLine(); });
