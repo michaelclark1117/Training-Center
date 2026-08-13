@@ -1,0 +1,620 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+#hpd-trainer * { box-sizing: border-box; }
+#hpd-trainer {
+  --navy-950: #0A1628;
+  --navy-900: #0F1E36;
+  --navy-800: #132844;
+  --navy-700: #1C3A5E;
+  --navy-600: #2A4A73;
+  --gold-500: #C9A24B;
+  --gold-300: #E4C878;
+  --paper: #EDEBE3;
+  --ink-muted: #8FA0B8;
+  --danger: #B85C4A;
+  --success: #4E9A6B;
+  font-family: 'Inter', sans-serif;
+  background: var(--navy-950);
+  color: var(--paper);
+  border-radius: 10px;
+  overflow: hidden;
+  min-height: 640px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+#hpd-trainer .mono { font-family: 'IBM Plex Mono', monospace; }
+#hpd-trainer .disp { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* ---------- top bar ---------- */
+#hpd-trainer .topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px; background: var(--navy-900); border-bottom: 1px solid var(--navy-700);
+}
+#hpd-trainer .brand { display: flex; align-items: center; gap: 10px; }
+#hpd-trainer .brand-mark {
+  width: 26px; height: 26px; border-radius: 4px; background: linear-gradient(135deg, var(--gold-500), var(--gold-300));
+  display: flex; align-items: center; justify-content: center; color: var(--navy-950); font-weight: 700; font-size: 13px;
+}
+#hpd-trainer .brand-name { font-size: 13px; letter-spacing: 0.12em; color: var(--ink-muted); }
+#hpd-trainer .timer { font-size: 13px; color: var(--gold-300); letter-spacing: 0.05em; }
+
+/* ---------- start screen ---------- */
+#hpd-trainer .start {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 40px 24px; text-align: center; gap: 22px;
+}
+#hpd-trainer .start h1 { font-size: 30px; margin: 0; font-weight: 600; }
+#hpd-trainer .start .eyebrow { color: var(--gold-500); font-size: 12px; letter-spacing: 0.18em; margin-bottom: 6px; }
+#hpd-trainer .start p.lede { color: var(--ink-muted); max-width: 480px; font-size: 14.5px; line-height: 1.55; margin: 0; }
+#hpd-trainer .vertical-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 6px; width: 100%; max-width: 520px; }
+#hpd-trainer .vcard {
+  background: var(--navy-800); border: 1px solid var(--navy-700); border-radius: 8px; padding: 16px 14px;
+  cursor: pointer; text-align: left; transition: border-color .15s, transform .15s;
+}
+#hpd-trainer .vcard:hover { border-color: var(--gold-500); transform: translateY(-2px); }
+#hpd-trainer .vcard.selected { border-color: var(--gold-500); background: var(--navy-700); }
+#hpd-trainer .vcard .vname { font-size: 14.5px; font-weight: 600; margin-bottom: 3px; }
+#hpd-trainer .vcard .vsub { font-size: 12px; color: var(--ink-muted); }
+#hpd-trainer .start-btn {
+  margin-top: 8px; background: var(--gold-500); color: var(--navy-950); border: none; border-radius: 6px;
+  padding: 13px 32px; font-size: 13px; letter-spacing: 0.08em; font-weight: 600; cursor: pointer;
+  font-family: 'Oswald', sans-serif; text-transform: uppercase;
+}
+#hpd-trainer .start-btn:hover { background: var(--gold-300); }
+#hpd-trainer .start-btn:disabled { opacity: .4; cursor: not-allowed; }
+#hpd-trainer .roadmap-note { font-size: 11.5px; color: var(--ink-muted); max-width: 480px; border-top: 1px solid var(--navy-700); padding-top: 14px; margin-top: 4px; }
+
+/* ---------- coach toggle ---------- */
+#hpd-trainer .coach-toggle-row {
+  display: flex; align-items: center; gap: 10px; max-width: 480px; width: 100%;
+  background: var(--navy-800); border: 1px solid var(--navy-700); border-radius: 8px; padding: 12px 14px;
+}
+#hpd-trainer .switch { position: relative; width: 38px; height: 21px; flex-shrink: 0; }
+#hpd-trainer .switch input { opacity: 0; width: 0; height: 0; }
+#hpd-trainer .switch-track {
+  position: absolute; inset: 0; background: var(--navy-700); border-radius: 20px; cursor: pointer; transition: background .15s;
+}
+#hpd-trainer .switch-track::before {
+  content: ''; position: absolute; width: 15px; height: 15px; left: 3px; top: 3px; background: var(--ink-muted);
+  border-radius: 50%; transition: transform .15s, background .15s;
+}
+#hpd-trainer .switch input:checked + .switch-track { background: var(--navy-600); }
+#hpd-trainer .switch input:checked + .switch-track::before { transform: translateX(17px); background: var(--gold-500); }
+#hpd-trainer .coach-toggle-text { text-align: left; }
+#hpd-trainer .coach-toggle-text .ct-title { font-size: 12.5px; font-weight: 600; }
+#hpd-trainer .coach-toggle-text .ct-sub { font-size: 11px; color: var(--ink-muted); }
+
+/* ---------- coach panel (scorecard) ---------- */
+#hpd-trainer .coach-panel { margin-bottom: 26px; }
+#hpd-trainer .coach-loading { display: flex; align-items: center; gap: 10px; color: var(--ink-muted); font-size: 13px; padding: 14px 0; }
+#hpd-trainer .coach-loading .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold-500); animation: pulse 1s infinite ease-in-out; }
+#hpd-trainer .coach-loading .dot:nth-child(2) { animation-delay: .15s; }
+#hpd-trainer .coach-loading .dot:nth-child(3) { animation-delay: .3s; }
+@keyframes pulse { 0%,100% { opacity: .25; } 50% { opacity: 1; } }
+#hpd-trainer .coach-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+#hpd-trainer .coach-box { background: var(--navy-800); border: 1px solid var(--navy-700); border-radius: 8px; padding: 14px 16px; }
+#hpd-trainer .coach-box .k { font-size: 10.5px; letter-spacing: 0.1em; margin-bottom: 8px; }
+#hpd-trainer .coach-box.strengths .k { color: var(--success); }
+#hpd-trainer .coach-box.improve .k { color: var(--danger); }
+#hpd-trainer .coach-box ul { margin: 0; padding-left: 16px; font-size: 12.5px; line-height: 1.6; }
+#hpd-trainer .coach-line-list { display: flex; flex-direction: column; gap: 8px; }
+#hpd-trainer .coach-line {
+  background: var(--navy-800); border: 1px solid var(--navy-700); border-left: 3px solid var(--navy-600);
+  border-radius: 6px; padding: 10px 14px;
+}
+#hpd-trainer .coach-line.strong { border-left-color: var(--success); }
+#hpd-trainer .coach-line.okay { border-left-color: var(--gold-500); }
+#hpd-trainer .coach-line.weak { border-left-color: var(--danger); }
+#hpd-trainer .coach-line .cl-text { font-size: 13px; margin-bottom: 4px; }
+#hpd-trainer .coach-line .cl-note { font-size: 11.5px; color: var(--ink-muted); }
+#hpd-trainer .coach-line .cl-tag {
+  display: inline-block; font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+  padding: 1px 7px; border-radius: 3px; margin-right: 7px; vertical-align: middle;
+}
+#hpd-trainer .coach-line.strong .cl-tag { background: rgba(78,154,107,0.18); color: var(--success); }
+#hpd-trainer .coach-line.okay .cl-tag { background: rgba(201,162,75,0.18); color: var(--gold-300); }
+#hpd-trainer .coach-line.weak .cl-tag { background: rgba(184,92,74,0.18); color: var(--danger); }
+
+/* ---------- call screen ---------- */
+#hpd-trainer .call-screen { display: none; flex: 1; min-height: 0; }
+#hpd-trainer .call-screen.active { display: flex; }
+#hpd-trainer .col-left {
+  width: 210px; flex-shrink: 0; background: var(--navy-900); border-right: 1px solid var(--navy-700);
+  padding: 18px 16px; display: flex; flex-direction: column; gap: 18px;
+}
+#hpd-trainer .dossier-label { font-size: 10.5px; letter-spacing: 0.14em; color: var(--gold-500); }
+#hpd-trainer .biz-name { font-size: 19px; font-weight: 600; line-height: 1.2; margin-top: 4px; }
+#hpd-trainer .contact-name { font-size: 12.5px; color: var(--ink-muted); margin-top: 4px; }
+#hpd-trainer .stat-row { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--ink-muted); padding: 7px 0; border-bottom: 1px solid var(--navy-700); }
+#hpd-trainer .stat-row span:last-child { color: var(--paper); }
+
+#hpd-trainer .transcript-col { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+#hpd-trainer .transcript { flex: 1; overflow-y: auto; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
+#hpd-trainer .bubble { max-width: 72%; padding: 11px 14px; border-radius: 10px; font-size: 14px; line-height: 1.45; }
+#hpd-trainer .bubble.merchant { background: var(--navy-800); align-self: flex-start; border-top-left-radius: 2px; }
+#hpd-trainer .bubble.rep { background: var(--navy-600); align-self: flex-end; border-top-right-radius: 2px; }
+#hpd-trainer .bubble-label { font-size: 10px; letter-spacing: 0.1em; color: var(--ink-muted); margin-bottom: 4px; text-transform: uppercase; }
+#hpd-trainer .thinking { align-self: flex-start; color: var(--ink-muted); font-size: 12.5px; font-style: italic; padding-left: 4px; }
+
+#hpd-trainer .input-row { border-top: 1px solid var(--navy-700); padding: 14px 20px; display: flex; gap: 10px; background: var(--navy-900); }
+#hpd-trainer .input-row input {
+  flex: 1; background: var(--navy-800); border: 1px solid var(--navy-700); border-radius: 6px; color: var(--paper);
+  padding: 11px 14px; font-size: 14px; font-family: 'Inter', sans-serif;
+}
+#hpd-trainer .input-row input:focus { outline: none; border-color: var(--gold-500); }
+#hpd-trainer .input-row button {
+  background: var(--gold-500); border: none; border-radius: 6px; color: var(--navy-950); padding: 0 20px;
+  font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 0.06em; font-size: 12.5px; font-weight: 600; cursor: pointer;
+}
+#hpd-trainer .input-row button:disabled { opacity: .4; cursor: not-allowed; }
+#hpd-trainer .end-btn {
+  background: transparent !important; color: var(--danger) !important; border: 1px solid var(--danger) !important; padding: 0 16px !important;
+}
+
+#hpd-trainer .col-right {
+  width: 220px; flex-shrink: 0; background: var(--navy-900); border-left: 1px solid var(--navy-700);
+  padding: 18px 16px; display: flex; flex-direction: column; gap: 22px;
+}
+#hpd-trainer .panel-title { font-size: 10.5px; letter-spacing: 0.14em; color: var(--gold-500); margin-bottom: 10px; }
+#hpd-trainer .path-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--navy-700); }
+#hpd-trainer .path-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--navy-700); border: 1px solid var(--navy-600); flex-shrink: 0; transition: all .2s; }
+#hpd-trainer .path-item.hit .path-dot { background: var(--gold-500); border-color: var(--gold-500); box-shadow: 0 0 8px var(--gold-500); }
+#hpd-trainer .path-item .path-text { font-size: 12.5px; }
+#hpd-trainer .path-item .path-name { font-weight: 600; }
+#hpd-trainer .path-item .path-desc { color: var(--ink-muted); font-size: 10.5px; margin-top: 1px; }
+#hpd-trainer .path-item.hit .path-name { color: var(--gold-300); }
+
+#hpd-trainer .meter-track { height: 8px; background: var(--navy-800); border-radius: 4px; overflow: hidden; border: 1px solid var(--navy-700); }
+#hpd-trainer .meter-fill { height: 100%; background: linear-gradient(90deg, var(--success), var(--gold-500), var(--danger)); width: 70%; transition: width .4s; }
+#hpd-trainer .meter-label { font-size: 11px; color: var(--ink-muted); margin-top: 6px; display: flex; justify-content: space-between; }
+
+/* ---------- scorecard ---------- */
+#hpd-trainer .scorecard { display: none; flex: 1; padding: 34px 40px; overflow-y: auto; }
+#hpd-trainer .scorecard.active { display: block; }
+#hpd-trainer .score-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 4px; }
+#hpd-trainer .score-verdict { font-size: 26px; font-weight: 600; }
+#hpd-trainer .score-verdict.win { color: var(--gold-300); }
+#hpd-trainer .score-verdict.loss { color: var(--danger); }
+#hpd-trainer .score-sub { color: var(--ink-muted); font-size: 13px; margin-bottom: 26px; }
+#hpd-trainer .score-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 26px; }
+#hpd-trainer .score-box { background: var(--navy-800); border: 1px solid var(--navy-700); border-radius: 8px; padding: 14px 16px; }
+#hpd-trainer .score-box .k { font-size: 10.5px; letter-spacing: 0.1em; color: var(--gold-500); margin-bottom: 6px; }
+#hpd-trainer .score-box .v { font-size: 14.5px; font-weight: 600; }
+#hpd-trainer .roadmap-block { background: var(--navy-800); border: 1px solid var(--navy-700); border-left: 3px solid var(--gold-500); border-radius: 6px; padding: 16px 18px; font-size: 13px; line-height: 1.6; color: var(--paper); margin-bottom: 26px; }
+#hpd-trainer .roadmap-block b { color: var(--gold-300); }
+#hpd-trainer .score-actions { display: flex; gap: 10px; }
+#hpd-trainer .score-actions button { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 0.06em; font-size: 12.5px; font-weight: 600; padding: 12px 22px; border-radius: 6px; cursor: pointer; }
+#hpd-trainer .btn-primary { background: var(--gold-500); border: none; color: var(--navy-950); }
+#hpd-trainer .btn-ghost { background: transparent; border: 1px solid var(--navy-600); color: var(--paper); }
+
+#hpd-trainer .transcript::-webkit-scrollbar, #hpd-trainer .scorecard::-webkit-scrollbar { width: 8px; }
+#hpd-trainer .transcript::-webkit-scrollbar-thumb, #hpd-trainer .scorecard::-webkit-scrollbar-thumb { background: var(--navy-700); border-radius: 4px; }
+</style>
+
+<div id="hpd-trainer">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">HP</div>
+      <div class="brand-name mono">HARLOW PAYMENTS &middot; STATEMENT ACQUISITION TRAINER</div>
+    </div>
+    <div class="timer mono" id="timerDisplay">00:00</div>
+  </div>
+
+  <div class="start" id="startScreen">
+    <div>
+      <div class="eyebrow">Live Roleplay &middot; AI Prospect</div>
+      <h1>Get the statement.</h1>
+    </div>
+    <p class="lede">Pick a business type and cold-call an AI merchant. There are exactly three ways to close this call the right way &mdash; the same three the write-up process requires. Everything else is just you talking.</p>
+    <div class="vertical-grid" id="verticalGrid"></div>
+    <label class="coach-toggle-row" for="coachToggle">
+      <span class="switch">
+        <input type="checkbox" id="coachToggle" checked />
+        <span class="switch-track"></span>
+      </span>
+      <span class="coach-toggle-text">
+        <div class="ct-title">Coach mode</div>
+        <div class="ct-sub">Line-by-line feedback on your call, after you hang up</div>
+      </span>
+    </label>
+    <button class="start-btn" id="startBtn" disabled>Start the call</button>
+    <div class="roadmap-note">Modeled on HPD's statement acquisition standard: get the statement directly, get the merchant on the phone with their current processor, or walk them through their processor's online portal &mdash; on every applicable opportunity.</div>
+  </div>
+
+  <div class="call-screen" id="callScreen">
+    <div class="col-left">
+      <div>
+        <div class="dossier-label">Dialing</div>
+        <div class="biz-name" id="bizName">&mdash;</div>
+        <div class="contact-name" id="contactName">&mdash;</div>
+      </div>
+      <div>
+        <div class="stat-row"><span>Vertical</span><span id="statVertical">&mdash;</span></div>
+        <div class="stat-row"><span>Turn</span><span id="statTurn">0</span></div>
+        <div class="stat-row"><span>Status</span><span id="statStatus">On call</span></div>
+      </div>
+    </div>
+
+    <div class="transcript-col">
+      <div class="transcript" id="transcript"></div>
+      <div class="input-row">
+        <input type="text" id="lineInput" placeholder="Say your next line to the merchant..." autocomplete="off" />
+        <button id="sendBtn">Say it</button>
+        <button id="endBtn" class="end-btn">End call</button>
+      </div>
+    </div>
+
+    <div class="col-right">
+      <div>
+        <div class="panel-title">Path to the statement</div>
+        <div class="path-item" id="pathDirect">
+          <div class="path-dot"></div>
+          <div class="path-text"><div class="path-name">Direct</div><div class="path-desc">Merchant hands it over</div></div>
+        </div>
+        <div class="path-item" id="pathProcessor">
+          <div class="path-dot"></div>
+          <div class="path-text"><div class="path-name">Processor</div><div class="path-desc">3-way call, request it</div></div>
+        </div>
+        <div class="path-item" id="pathPortal">
+          <div class="path-dot"></div>
+          <div class="path-text"><div class="path-name">Portal</div><div class="path-desc">Walk the portal together</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="panel-title">Merchant resistance</div>
+        <div class="meter-track"><div class="meter-fill" id="meterFill"></div></div>
+        <div class="meter-label mono"><span>Open</span><span id="meterPct">70%</span><span>Closed</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scorecard" id="scorecard">
+    <div class="score-header">
+      <div class="score-verdict" id="scoreVerdict">&mdash;</div>
+    </div>
+    <div class="score-sub" id="scoreSub">&mdash;</div>
+    <div class="score-grid">
+      <div class="score-box"><div class="k mono">TURNS</div><div class="v" id="scoreTurns">&mdash;</div></div>
+      <div class="score-box"><div class="k mono">CLOSE METHOD</div><div class="v" id="scoreMethod">&mdash;</div></div>
+    </div>
+    <div class="coach-panel" id="coachPanel" style="display:none;"></div>
+    <div class="roadmap-block" id="roadmapBlock"></div>
+    <div class="score-actions">
+      <button class="btn-primary" id="callAgainBtn">Call another prospect</button>
+      <button class="btn-ghost" id="reviewBtn">Review transcript</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const VERTICALS = [
+    { id: 'restaurant', name: 'Restaurant', sub: 'Full-service, slammed at lunch', personas: [
+      { biz: 'Sushi Zoa', contact: 'Danny, Owner' }, { biz: 'The Iron Skillet', contact: 'Marisol, GM' }
+    ]},
+    { id: 'retail', name: 'Retail / Convenience', sub: 'Counter traffic, thin margins', personas: [
+      { biz: 'Catamount Country Store', contact: 'Ellen, Owner' }, { biz: 'Trailhead Outfitters', contact: 'Pete, Owner' }
+    ]},
+    { id: 'auto', name: 'Auto / Diesel Repair', sub: 'Bays busy, guarded on the phone', personas: [
+      { biz: 'M&M Diesel', contact: 'Marcus, Owner' }, { biz: 'Bouchillon Performance Engineering', contact: 'Ray, Owner' }
+    ]},
+    { id: 'services', name: 'Professional Services', sub: 'Office setting, scheduling-driven', personas: [
+      { biz: 'Prestige Dental Group', contact: 'Dr. Okafor, Practice Manager' }, { biz: 'Hallmark Law Group', contact: 'Denise, Office Manager' }
+    ]}
+  ];
+
+  const el = id => document.getElementById(id);
+  let state = null;
+  let timerInterval = null;
+
+  function buildStart(){
+    const grid = el('verticalGrid');
+    VERTICALS.forEach(v => {
+      const card = document.createElement('div');
+      card.className = 'vcard';
+      card.innerHTML = `<div class="vname">${v.name}</div><div class="vsub">${v.sub}</div>`;
+      card.onclick = () => {
+        document.querySelectorAll('#hpd-trainer .vcard').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        state = state || {};
+        state.selectedVertical = v.id;
+        el('startBtn').disabled = false;
+      };
+      card.dataset.vid = v.id;
+      grid.appendChild(card);
+    });
+  }
+  buildStart();
+
+  function startCall(){
+    const v = VERTICALS.find(x => x.id === state.selectedVertical);
+    const persona = v.personas[Math.floor(Math.random() * v.personas.length)];
+    state = {
+      vertical: v,
+      biz: persona.biz,
+      contact: persona.contact,
+      history: [],
+      plainLog: [],
+      coachMode: el('coachToggle').checked,
+      turn: 0,
+      resistance: 72,
+      successPath: null,
+      ended: false,
+      startTime: Date.now()
+    };
+    el('bizName').textContent = state.biz;
+    el('contactName').textContent = state.contact;
+    el('statVertical').textContent = v.name;
+    el('statTurn').textContent = '0';
+    el('statStatus').textContent = 'On call';
+    el('transcript').innerHTML = '';
+    el('startScreen').style.display = 'none';
+    el('scorecard').classList.remove('active');
+    el('callScreen').classList.add('active');
+    updateMeter();
+    resetPaths();
+    startTimer();
+    addBubble('merchant', `${state.contact.split(',')[0]} answers.`, true);
+    el('lineInput').focus();
+  }
+
+  function startTimer(){
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      const s = Math.floor((Date.now() - state.startTime) / 1000);
+      const m = String(Math.floor(s/60)).padStart(2,'0');
+      const sec = String(s%60).padStart(2,'0');
+      el('timerDisplay').textContent = `${m}:${sec}`;
+    }, 1000);
+  }
+
+  function resetPaths(){
+    ['pathDirect','pathProcessor','pathPortal'].forEach(id => el(id).classList.remove('hit'));
+  }
+
+  function updateMeter(){
+    el('meterFill').style.width = state.resistance + '%';
+    el('meterPct').textContent = state.resistance + '%';
+  }
+
+  function addBubble(who, text, isSystemNote){
+    const t = el('transcript');
+    const b = document.createElement('div');
+    if (isSystemNote){
+      b.className = 'thinking';
+      b.textContent = text;
+    } else {
+      b.className = 'bubble ' + who;
+      const label = document.createElement('div');
+      label.className = 'bubble-label';
+      label.textContent = who === 'merchant' ? state.contact.split(',')[0] : 'You';
+      b.appendChild(label);
+      const body = document.createElement('div');
+      body.textContent = text;
+      b.appendChild(body);
+      if (state && state.plainLog) state.plainLog.push({ who, text });
+    }
+    t.appendChild(b);
+    t.scrollTop = t.scrollHeight;
+  }
+
+  function addThinking(){
+    const t = el('transcript');
+    const b = document.createElement('div');
+    b.className = 'thinking';
+    b.id = 'thinkingNote';
+    b.textContent = `${state.contact.split(',')[0]} is responding...`;
+    t.appendChild(b);
+    t.scrollTop = t.scrollHeight;
+  }
+  function removeThinking(){
+    const n = el('thinkingNote');
+    if (n) n.remove();
+  }
+
+  function buildSystemPrompt(){
+    return `You are role-playing as ${state.contact}, at ${state.biz}, a ${state.vertical.name.toLowerCase()} business in the DFW, Texas area. A payment processing sales rep just cold-called you to review your merchant statement and look for hidden overcharges. You are moderately busy and mildly skeptical of sales calls, but not hostile or unrealistic, and you have not decided anything yet.
+
+This is a training simulation for a new sales rep. There are exactly three acceptable ways this call can end in success, matching this company's real statement acquisition process:
+1. "direct" - you agree to hand over or send your processing statement directly (email it, text a photo, or say you have a copy handy and will get it to them).
+2. "processor" - you agree to call your current processor together with the rep right now (three-way) to request a copy of the statement.
+3. "portal" - you agree to log into your processor's online portal together with the rep, right now, to pull up the statement.
+
+Stay fully in character as the business owner/manager. Never break character, never explain your reasoning to the rep. Respond ONLY with a raw JSON object, no markdown formatting, no code fences, matching exactly this shape:
+{"reply": "<1-4 natural spoken sentences, what you say back>", "resistance": <integer 0-100, higher = more closed off/skeptical, lower = more open>, "success_path": <"direct", "processor", or "portal" ONLY if you just explicitly, verbally committed to that specific action in this reply, otherwise null>, "ended": <true only if you are hanging up out of frustration or lack of time with no statement obtained, otherwise false>}
+
+Rules:
+- Resistance moves gradually based on how well the rep handles the call (asks good questions, is professional, explains value clearly) versus being pushy, robotic, vague, or ignoring what you said. Do not swing it wildly on a single line.
+- Only ever set success_path when you have just explicitly agreed, in this exact reply, to one of the three specific mechanisms above. General interest or "maybe later" is not success.
+- If resistance would go above 95 because the rep is being unprofessional, repetitive, or wasting your time, set ended to true and success_path to null.
+- Talk like a real ${state.vertical.name.toLowerCase()} owner/manager would - reference real day-to-day details of that kind of business naturally, briefly.
+- Keep replies conversational and brief, like an actual phone call, not a monologue.`;
+  }
+
+  async function callModel(userText){
+    state.history.push({ role: 'user', content: userText });
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        system: buildSystemPrompt(),
+        messages: state.history
+      })
+    });
+    const data = await resp.json();
+    const textBlock = (data.content || []).find(b => b.type === 'text');
+    let raw = textBlock ? textBlock.text : '{}';
+    raw = raw.replace(/```json|```/g, '').trim();
+    let parsed;
+    try { parsed = JSON.parse(raw); }
+    catch(e){ parsed = { reply: "Sorry, can you repeat that? I got distracted.", resistance: state.resistance, success_path: null, ended: false }; }
+    state.history.push({ role: 'assistant', content: raw });
+    return parsed;
+  }
+
+  async function sendLine(){
+    const input = el('lineInput');
+    const text = input.value.trim();
+    if (!text || state.ended || state.successPath) return;
+    addBubble('rep', text);
+    input.value = '';
+    el('sendBtn').disabled = true;
+    input.disabled = true;
+    addThinking();
+    state.turn++;
+    el('statTurn').textContent = state.turn;
+
+    try {
+      const result = await callModel(text);
+      removeThinking();
+      addBubble('merchant', result.reply);
+      state.resistance = Math.max(0, Math.min(100, result.resistance ?? state.resistance));
+      updateMeter();
+
+      if (result.success_path){
+        state.successPath = result.success_path;
+        highlightPath(result.success_path);
+        el('statStatus').textContent = 'Closed';
+        setTimeout(() => endCall(true), 900);
+      } else if (result.ended){
+        state.ended = true;
+        el('statStatus').textContent = 'Hung up';
+        setTimeout(() => endCall(false), 700);
+      }
+    } catch(err){
+      removeThinking();
+      addBubble('merchant', "(connection issue — try that line again)", true);
+    }
+
+    el('sendBtn').disabled = false;
+    input.disabled = false;
+    input.focus();
+  }
+
+  function highlightPath(path){
+    const map = { direct: 'pathDirect', processor: 'pathProcessor', portal: 'pathPortal' };
+    if (map[path]) el(map[path]).classList.add('hit');
+  }
+
+  function endCall(won){
+    clearInterval(timerInterval);
+    el('callScreen').classList.remove('active');
+    const sc = el('scorecard');
+    sc.classList.add('active');
+
+    const verdict = el('scoreVerdict');
+    const sub = el('scoreSub');
+    if (won){
+      verdict.textContent = 'Statement acquired';
+      verdict.className = 'score-verdict win';
+      sub.textContent = `${state.contact} at ${state.biz} committed to the ${labelFor(state.successPath)} path in ${state.turn} turns.`;
+    } else {
+      verdict.textContent = 'No statement';
+      verdict.className = 'score-verdict loss';
+      sub.textContent = state.ended
+        ? `${state.contact.split(',')[0]} ended the call before any of the three paths were reached.`
+        : `Call ended manually before a statement was secured.`;
+    }
+    el('scoreTurns').textContent = state.turn;
+    el('scoreMethod').textContent = state.successPath ? labelFor(state.successPath) : 'None reached';
+
+    el('roadmapBlock').innerHTML = won
+      ? `<b>Why this counts:</b> this matches the standard &mdash; contacting the merchant's current processor directly, or walking them through their online processing portal while on the phone, or getting the statement handed over directly. That's the process on every applicable opportunity, not just when it's easy.`
+      : `<b>What the roadmap calls for:</b> fully implement the training provided, follow the statement acquisition process on every applicable opportunity, personally assist the merchant in contacting their current processor when necessary, and walk them through their processor's portal when necessary. If you hit resistance, ask for clarification or help rather than dropping the process.`;
+
+    const coachPanel = el('coachPanel');
+    if (state.coachMode && state.plainLog.some(l => l.who === 'rep')){
+      coachPanel.style.display = 'block';
+      coachPanel.innerHTML = `<div class="panel-title" style="margin-bottom:10px;">Coach notes</div>
+        <div class="coach-loading"><span class="dot"></span><span class="dot"></span><span class="dot"></span>&nbsp;Reviewing your call line by line...</div>`;
+      runCoach(won);
+    } else {
+      coachPanel.style.display = 'none';
+      coachPanel.innerHTML = '';
+    }
+  }
+
+  function labelFor(p){
+    return { direct: 'Direct hand-off', processor: 'Processor 3-way', portal: 'Portal walkthrough' }[p] || p;
+  }
+
+  async function runCoach(won){
+    const transcriptText = state.plainLog
+      .map(l => `${l.who === 'rep' ? 'REP' : 'MERCHANT'}: ${l.text}`)
+      .join('\n');
+
+    const coachSystem = `You are a blunt, experienced B2B payment-processing sales floor coach reviewing a rep's cold call roleplay transcript against this company's statement acquisition standard: get the statement directly, get the merchant on a three-way call with their current processor, or walk them through their processor's online portal - on every applicable opportunity, asking for help rather than dropping the process when stuck.
+
+Review ONLY the REP lines in the transcript below, in order. For each REP line, judge it on its own merit in context: does it move the merchant toward one of the three acceptable outcomes, ask a real discovery question, handle an objection well, or is it vague, passive, robotic, or does it let the merchant off the hook.
+
+Call outcome: ${won ? 'the rep successfully closed on ' + labelFor(state.successPath) : 'the rep did NOT get the statement'}.
+
+Respond ONLY with raw JSON, no markdown, no code fences, in exactly this shape:
+{"strengths": ["<short phrase>", "..."], "improve": ["<short phrase>", "..."], "lines": [{"turn": <1-indexed position of this line among REP lines only>, "text": "<the exact rep line>", "verdict": "strong"|"okay"|"weak", "note": "<one short, specific, actionable sentence>"}]}
+
+Keep strengths and improve to 2-3 items each. Cover every REP line in "lines". Be specific to what was actually said, not generic sales advice.
+
+TRANSCRIPT:
+${transcriptText}`;
+
+    try {
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: coachSystem }]
+        })
+      });
+      const data = await resp.json();
+      const textBlock = (data.content || []).find(b => b.type === 'text');
+      let raw = textBlock ? textBlock.text : '{}';
+      raw = raw.replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(raw);
+      renderCoach(parsed);
+    } catch(e){
+      el('coachPanel').innerHTML = `<div class="panel-title" style="margin-bottom:10px;">Coach notes</div>
+        <div class="coach-loading" style="font-style:italic;">Couldn't load coaching feedback for this call &mdash; try Review transcript to self-review, or call again.</div>`;
+    }
+  }
+
+  function renderCoach(data){
+    const panel = el('coachPanel');
+    const strengths = (data.strengths || []).map(s => `<li>${s}</li>`).join('');
+    const improve = (data.improve || []).map(s => `<li>${s}</li>`).join('');
+    const lines = (data.lines || []).map(l => `
+      <div class="coach-line ${l.verdict}">
+        <div class="cl-text"><span class="cl-tag">${l.verdict}</span>${l.text}</div>
+        <div class="cl-note">${l.note}</div>
+      </div>`).join('');
+
+    panel.innerHTML = `
+      <div class="panel-title" style="margin-bottom:10px;">Coach notes</div>
+      <div class="coach-summary">
+        <div class="coach-box strengths"><div class="k mono">STRENGTHS</div><ul>${strengths || '<li>&mdash;</li>'}</ul></div>
+        <div class="coach-box improve"><div class="k mono">WORK ON</div><ul>${improve || '<li>&mdash;</li>'}</ul></div>
+      </div>
+      <div class="coach-line-list">${lines}</div>
+    `;
+  }
+
+  el('startBtn').addEventListener('click', startCall);
+  el('sendBtn').addEventListener('click', sendLine);
+  el('lineInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendLine(); });
+  el('endBtn').addEventListener('click', () => { if (!state.ended && !state.successPath) endCall(false); });
+  el('callAgainBtn').addEventListener('click', () => {
+    el('scorecard').classList.remove('active');
+    el('startScreen').style.display = 'flex';
+    el('timerDisplay').textContent = '00:00';
+  });
+  el('reviewBtn').addEventListener('click', () => {
+    el('scorecard').classList.remove('active');
+    el('callScreen').classList.add('active');
+  });
+})();
+</script>
